@@ -10,3 +10,5 @@ ENV/
 .pytest_cache/
 
 
+
+.vercel
