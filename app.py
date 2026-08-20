@@ -16,7 +16,7 @@ from src.benchmark import run_benchmark_suite, generate_synthetic_dataset
 
 # Page configuration
 st.set_page_config(
-    page_title="LLM-Opt | Cybernetic Relational Query Optimizer",
+    page_title="Relix | Cybernetic Relational Query Optimizer",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -70,9 +70,35 @@ div[data-testid="stMetric"]:hover, .glass-card:hover {
     box-shadow: 0 30px 60px rgba(0, 242, 254, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
 }
 
+/* Tab Info Box Banner Styling */
+.tab-info-box {
+    background: rgba(0, 242, 254, 0.06);
+    border: 1px solid rgba(0, 242, 254, 0.25);
+    border-left: 4px solid #00f2fe;
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    backdrop-filter: blur(15px);
+}
+.tab-info-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #00f2fe;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.tab-info-desc {
+    font-size: 0.93rem;
+    color: #cbd5e1;
+    line-height: 1.5;
+}
+
 /* Metric Typography & Accents */
 div[data-testid="stMetricLabel"] {
-    font-family: 'Outfit', sans-serif !family;
+    font-family: 'Outfit', sans-serif !important;
     font-size: 0.95rem !important;
     font-weight: 600 !important;
     text-transform: uppercase !important;
@@ -135,13 +161,13 @@ button[aria-selected="true"] {
 /* Title Gradient Glow */
 .hero-title {
     font-family: 'Outfit', sans-serif;
-    font-size: 3rem;
+    font-size: 3.2rem;
     font-weight: 800;
     line-height: 1.1;
     background: linear-gradient(135deg, #00f2fe 0%, #4facfe 40%, #00ff87 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 5px 15px rgba(0, 242, 254, 0.2));
+    filter: drop-shadow(0 5px 15px rgba(0, 242, 254, 0.25));
 }
 
 .hero-subtitle {
@@ -306,10 +332,10 @@ components.html("""
 # -------------------------------------------------------------------
 col_hero, col_hero_badge = st.columns([3, 1])
 with col_hero:
-    st.markdown('<div class="hero-title">⚡ LLM-Opt</div>', unsafe_allow_html=True)
+    st.markdown('<div class="hero-title">⚡ Relix</div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="hero-subtitle">'
-        'Cybernetic Cost- & Latency-Aware Relational LLM Query Optimization'
+        'Cybernetic Cost- & Latency-Aware Relational LLM Query Optimizer'
         '</div>',
         unsafe_allow_html=True
     )
@@ -327,7 +353,7 @@ st.markdown("---")
 # -------------------------------------------------------------------
 # SIDEBAR CONTROLS
 # -------------------------------------------------------------------
-st.sidebar.markdown("### 🎛️ Data Control Engine")
+st.sidebar.markdown("### 🎛️ Relix Data Control Engine")
 
 data_source = st.sidebar.radio(
     "Select Input Source",
@@ -409,7 +435,7 @@ def apply_glowing_plotly_theme(fig, title_text):
 
 
 # -------------------------------------------------------------------
-# DASHBOARD TABS
+# DASHBOARD TABS WITH EXPLICIT LABELING & INFO BANNERS
 # -------------------------------------------------------------------
 tab_opt, tab_profile, tab_scale, tab_docs = st.tabs([
     "⚡ Interactive Optimizer", "📊 Dataset Profiling & FDs", "📈 Scaling Benchmarks", "📖 MLSys Paper Notes"
@@ -419,9 +445,21 @@ tab_opt, tab_profile, tab_scale, tab_docs = st.tabs([
 # TAB 1: INTERACTIVE OPTIMIZER & COMPARISON
 # -------------------------------------------------------------------
 with tab_opt:
+    # Explicit Labeling & Info Banner
+    st.markdown("""
+    <div class="tab-info-box">
+        <div class="tab-info-title">⚡ Interactive Query Optimizer & Performance Comparison</div>
+        <div class="tab-info-desc">
+            This module compares raw un-optimized query ordering (<b>Baseline</b>) against <b>Relix's GGR-Inspired Query Optimizer</b>. 
+            It evaluates live metrics for <b>Prefix Hit Count (PHC)</b>, <b>KV-Cache Reuse %</b>, <b>Reused Token Count</b>, <b>Estimated Latency Speedup</b>, 
+            and <b>API Cost Savings</b> along with 5 interactive Plotly visual charts and deterministic prompt previews.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
     col_btn, col_blank = st.columns([2, 3])
     with col_btn:
-        run_opt = st.button("✨ EXECUTE LLM-OPT QUERY OPTIMIZER", type="primary")
+        run_opt = st.button("✨ EXECUTE RELIX QUERY OPTIMIZER", type="primary")
 
     if run_opt or "opt_results" in st.session_state:
         if run_opt:
@@ -455,7 +493,7 @@ with tab_opt:
         cost_red = round(((b_m["total_cost_usd"] - g_m["total_cost_usd"]) / max(b_m["total_cost_usd"], 1e-6)) * 100, 1)
 
         # Glowing Metric Cards
-        st.markdown("#### 💎 Measured Optimization Gains")
+        st.markdown("#### 💎 Measured Relix Optimization Gains")
         m1, m2, m3, m4, m5, m6 = st.columns(6)
         
         m1.metric("Prefix Hits", g_m["prefix_hit_count"], delta=f"+{g_m['prefix_hit_count'] - b_m['prefix_hit_count']}")
@@ -475,9 +513,9 @@ with tab_opt:
         st.markdown("---")
 
         # 5 Modern Plotly Charts
-        st.markdown("#### 📊 Visual Analytics & Performance Charts")
+        st.markdown("#### 📊 Visual Performance Analytics & Comparative Graphs")
 
-        chart_methods = ["Baseline", "GGR-Inspired"]
+        chart_methods = ["Baseline", "Relix (GGR-Inspired)"]
         hits_vals = [b_m["prefix_hit_count"], g_m["prefix_hit_count"]]
         reuse_vals = [b_m["cache_reuse_ratio"] * 100, g_m["cache_reuse_ratio"] * 100]
         lat_vals = [b_m["estimated_latency_sec"], g_m["estimated_latency_sec"]]
@@ -485,7 +523,7 @@ with tab_opt:
         speedup_vals = [1.0, speedup]
 
         if res["ophr"] is not None:
-            chart_methods.append("OPHR (Exact)")
+            chart_methods.append("OPHR (Exact Oracle)")
             o_m = res["ophr"]["metrics"]
             hits_vals.append(o_m["prefix_hit_count"])
             reuse_vals.append(o_m["cache_reuse_ratio"] * 100)
@@ -534,23 +572,34 @@ with tab_opt:
         st.markdown("---")
 
         # Prompt & Field Order Comparison
-        st.markdown("#### 📝 Field Structure & Prompt Preview")
+        st.markdown("#### 📝 Field Structure & Generated Prompt Comparison")
         p_col1, p_col2 = st.columns(2)
         with p_col1:
-            st.markdown("**Baseline Field Sequence:**")
+            st.markdown("**Baseline Unordered Sequence:**")
             st.code(", ".join(res["baseline"]["field_order"]), language="text")
             st.text_area("Baseline Generated Prompt", res["baseline"]["prompts"][0], height=180)
 
         with p_col2:
-            st.markdown("**GGR-Inspired Optimized Field Sequence:**")
+            st.markdown("**Relix Optimized Field Sequence:**")
             st.code(", ".join(res["ggr"]["field_order"]), language="text")
-            st.text_area("GGR Optimized Generated Prompt", res["ggr"]["prompts"][0], height=180)
+            st.text_area("Relix Optimized Generated Prompt", res["ggr"]["prompts"][0], height=180)
 
 # -------------------------------------------------------------------
 # TAB 2: DATASET PROFILING & FUNCTIONAL DEPENDENCIES
 # -------------------------------------------------------------------
 with tab_profile:
-    st.markdown("#### 📊 Dataset Profiling & Attribute Analysis")
+    # Explicit Labeling & Info Banner
+    st.markdown("""
+    <div class="tab-info-box">
+        <div class="tab-info-title">📊 Dataset Profiling, Value Repetition & Functional Dependencies</div>
+        <div class="tab-info-desc">
+            This module inspects your uploaded dataset's underlying relational structure. It calculates <b>Total Records</b>, <b>Attributes</b>, 
+            <b>Missing Values</b>, <b>Cardinality Ratios</b> ($|unique| / N$), <b>High Value Repetition Columns</b>, and detects <b>Candidate Functional Dependencies</b> ($C_1 \to C_2$). 
+            Relix uses these structural statistics to decide which schema fields should be prioritized at the head of prompt templates.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
     prof = profile_dataset(uploaded_df)
 
     p_c1, p_c2, p_c3 = st.columns(3)
@@ -561,7 +610,7 @@ with tab_profile:
     st.markdown("---")
     f_c1, f_c2 = st.columns(2)
     with f_c1:
-        st.markdown("##### 🔑 Cardinality Ratios & Column Types")
+        st.markdown("##### 🔑 Column Cardinality Ratios & Data Types")
         card_df = pd.DataFrame({
             "Column Name": list(prof["unique_counts"].keys()),
             "Data Type": list(prof["column_types"].values()),
@@ -589,7 +638,17 @@ with tab_profile:
 # TAB 3: SCALING BENCHMARKS
 # -------------------------------------------------------------------
 with tab_scale:
-    st.markdown("#### 📈 Multi-Scale Benchmark Suite (100 to 10,000 Rows)")
+    # Explicit Labeling & Info Banner
+    st.markdown("""
+    <div class="tab-info-box">
+        <div class="tab-info-title">📈 Automated Multi-Scale Benchmark Suite</div>
+        <div class="tab-info-desc">
+            This module runs automated scalability experiments across <b>100</b>, <b>1,000</b>, and <b>10,000</b> record sizes across 
+            3 LLM workload types (<i>Sentiment Classification</i>, <i>Entity Extraction</i>, <i>Attribute Extraction</i>). 
+            It measures scaling stability, latency growth curves, and cost reduction ratios under large data volume growth.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
     if st.button("▶️ EXECUTE BENCHMARK SUITE", type="primary"):
         with st.spinner("Executing benchmark across dataset scales..."):
@@ -619,7 +678,18 @@ with tab_scale:
 # TAB 4: MLSYS PAPER NOTES & MAPPING
 # -------------------------------------------------------------------
 with tab_docs:
-    st.markdown("#### 📖 Research Attribution & Paper Concept Mapping")
+    # Explicit Labeling & Info Banner
+    st.markdown("""
+    <div class="tab-info-box">
+        <div class="tab-info-title">📖 Theoretical Foundation, Research Attribution & Concept Mapping</div>
+        <div class="tab-info-desc">
+            This module provides full academic attribution to the primary paper <i>"Optimizing LLM Queries in Relational Data Analytics Workloads"</i> 
+            (Shu Liu et al., MLSys 2025). It outlines the mathematical formulation of <b>Prefix Hit Count (PHC)</b>, <b>OPHR Exact Search</b>, 
+            <b>GGR Greedy Strategy</b>, and details the explicit mapping between published paper concepts and Relix's prototype architecture.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
     st.markdown("""
     **Primary Paper Reference:**
     - Shu Liu et al., *Optimizing LLM Queries in Relational Data Analytics Workloads*, Proceedings of Machine Learning and Systems (MLSys 2025).
@@ -630,7 +700,7 @@ with tab_docs:
     | :--- | :--- | :--- |
     | **Baseline Query Order** | `src/baseline.py` | Baseline |
     | **OPHR Search Algorithm** | `src/ophr.py` | Exact Small-Data Oracle ($n \le 7$) |
-    | **GGR Greedy Strategy** | `src/ggr.py` | Inspired Implementation |
+    | **GGR Greedy Strategy** | `src/ggr.py` | Relix GGR-Inspired Implementation |
     | **Prefix Hit Count (PHC)** | `src/prefix_metrics.py` | Token LCP Implementation |
     | **KV Cache Measurement** | `src/prefix_metrics.py` | Whitespace Token Proxy |
     | **Latency & Cost Model** | `src/cost_model.py` | Throughput Simulation Model |
