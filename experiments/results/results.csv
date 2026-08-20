@@ -1,0 +1,19 @@
+Method,Rows,Query,Prefix Hits,Reused Tokens,Total Tokens,Reuse Ratio,Estimated Latency (s),Estimated Cost ($),Speedup,Cost Reduction (%)
+Baseline,100,sentiment,99,2475,4432,0.5584,15.2828,0.022986,1.0,0.0
+GGR-Inspired,100,sentiment,99,3190,4432,0.7198,14.9968,0.022093,1.02,3.88
+Baseline,100,entity_extraction,99,2178,4132,0.5271,15.2816,0.022607,1.0,0.0
+GGR-Inspired,100,entity_extraction,99,2893,4132,0.7001,14.9956,0.021714,1.02,3.95
+Baseline,100,attribute_extraction,99,1881,3832,0.4909,15.2804,0.022229,1.0,0.0
+GGR-Inspired,100,attribute_extraction,99,2596,3832,0.6775,14.9944,0.021335,1.02,4.02
+Baseline,1000,sentiment,999,24975,44401,0.5625,152.7704,0.229784,1.0,0.0
+GGR-Inspired,1000,sentiment,999,29253,44401,0.6588,151.0592,0.224436,1.01,2.33
+Baseline,1000,entity_extraction,999,21978,41401,0.5309,152.7692,0.22603,1.0,0.0
+GGR-Inspired,1000,entity_extraction,999,26256,41401,0.6342,151.058,0.220683,1.01,2.37
+Baseline,1000,attribute_extraction,999,18981,38401,0.4943,152.768,0.222276,1.0,0.0
+GGR-Inspired,1000,attribute_extraction,999,23259,38401,0.6057,151.0568,0.216929,1.01,2.41
+Baseline,10000,sentiment,9999,249975,444083,0.5629,1527.6432,2.297739,1.0,0.0
+GGR-Inspired,10000,sentiment,9999,292920,444083,0.6596,1510.4652,2.244058,1.01,2.34
+Baseline,10000,entity_extraction,9999,219978,414083,0.5312,1527.642,2.260235,1.0,0.0
+GGR-Inspired,10000,entity_extraction,9999,262923,414083,0.635,1510.464,2.206554,1.01,2.38
+Baseline,10000,attribute_extraction,9999,189981,384083,0.4946,1527.6408,2.222731,1.0,0.0
+GGR-Inspired,10000,attribute_extraction,9999,232926,384083,0.6064,1510.4628,2.16905,1.01,2.42

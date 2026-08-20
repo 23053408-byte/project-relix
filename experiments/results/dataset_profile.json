@@ -1,0 +1,47 @@
+{
+  "rows": 20,
+  "columns": 6,
+  "column_types": {
+    "review_id": "int64",
+    "product_id": "str",
+    "category": "str",
+    "brand": "str",
+    "rating": "int64",
+    "review_text": "str"
+  },
+  "unique_counts": {
+    "review_id": 20,
+    "product_id": 9,
+    "category": 5,
+    "brand": 6,
+    "rating": 4,
+    "review_text": 20
+  },
+  "cardinality_ratio": {
+    "review_id": 1.0,
+    "product_id": 0.45,
+    "category": 0.25,
+    "brand": 0.3,
+    "rating": 0.2,
+    "review_text": 1.0
+  },
+  "missing_values": {
+    "review_id": 0,
+    "product_id": 0,
+    "category": 0,
+    "brand": 0,
+    "rating": 0,
+    "review_text": 0
+  },
+  "duplicate_rows": 0,
+  "repeated_value_columns": [
+    "product_id",
+    "category",
+    "brand",
+    "rating"
+  ],
+  "candidate_dependencies": [
+    "product_id -> category",
+    "product_id -> brand"
+  ]
+}

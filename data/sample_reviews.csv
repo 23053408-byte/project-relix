@@ -1,0 +1,21 @@
+review_id,product_id,category,brand,rating,review_text
+1,P100,Phone,Apple,5,Excellent battery life and crisp screen.
+2,P100,Phone,Apple,4,Great build quality but camera bump is noticeable.
+3,P100,Phone,Apple,5,Fast A-series chip performance.
+4,P101,Phone,Samsung,4,Vibrant display and good battery life.
+5,P101,Phone,Samsung,5,S-Pen functionality is wonderful for note taking.
+6,P101,Phone,Samsung,3,Occasional software glitches after update.
+7,P102,Laptop,Apple,5,M-series processor delivers incredible battery efficiency.
+8,P102,Laptop,Apple,4,Sleek chassis and top notch trackpad.
+9,P103,Laptop,Dell,4,Sturdy build quality for enterprise use.
+10,P103,Laptop,Dell,2,Thermal throttling under heavy compiler workloads.
+11,P104,Headphones,Sony,5,Industry leading noise cancellation.
+12,P104,Headphones,Sony,4,Comfortable memory foam ear cushions.
+13,P105,Headphones,Bose,5,Clear voice calls and ultra lightweight design.
+14,P105,Headphones,Bose,4,Balanced acoustic profile with natural soundstage.
+15,P106,Smartwatch,Apple,5,Accurate heart rate monitoring and seamless sync.
+16,P106,Smartwatch,Apple,3,Battery requires daily charging.
+17,P107,Smartwatch,Garmin,5,Exceptional GPS tracking for multi-day endurance sports.
+18,P107,Smartwatch,Garmin,4,Rugged construction and solar charging bezel.
+19,P108,Tablet,Apple,5,Liquid Retina display is stunning for visual artwork.
+20,P108,Tablet,Apple,4,Pencil stylus latency is virtually imperceptible.

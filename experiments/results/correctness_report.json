@@ -1,0 +1,11 @@
+{
+  "status": "PASSED",
+  "checks": {
+    "row_count_preserved": true,
+    "row_set_preserved": true,
+    "cell_values_intact": true,
+    "instruction_header_preserved": true
+  },
+  "original_rows": 20,
+  "optimized_rows": 20
+}
