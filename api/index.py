@@ -18,7 +18,7 @@ class handler(BaseHTTPRequestHandler):
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Relix | Cybernetic Relational LLM Query Optimizer</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
@@ -37,62 +37,60 @@ class handler(BaseHTTPRequestHandler):
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: -1; pointer-events: none;
         }
-        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 30px 16px; }
 
         /* Header / Hero */
-        .hero { text-align: center; margin-bottom: 35px; }
+        .hero { text-align: center; margin-bottom: 30px; }
         .hero-title {
-            font-family: 'Outfit', sans-serif; font-size: 3.5rem; font-weight: 800;
+            font-family: 'Outfit', sans-serif; font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 800;
             background: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #00ff87 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             margin-bottom: 8px; filter: drop-shadow(0 5px 15px rgba(0, 242, 254, 0.25));
         }
-        .hero-sub { font-size: 1.15rem; color: #94a3b8; margin-bottom: 16px; }
+        .hero-sub { font-size: clamp(0.95rem, 2.5vw, 1.15rem); color: #94a3b8; margin-bottom: 16px; padding: 0 10px; }
         .badges { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
         .badge {
-            padding: 6px 16px; border-radius: 50px; font-size: 0.82rem; font-weight: 600;
+            padding: 6px 14px; border-radius: 50px; font-size: clamp(0.75rem, 2vw, 0.82rem); font-weight: 600;
             background: rgba(0, 242, 254, 0.1); color: #38bdf8; border: 1px solid rgba(0, 242, 254, 0.25);
             backdrop-filter: blur(10px);
         }
         .badge-purple { background: rgba(127, 0, 255, 0.15); color: #c084fc; border-color: rgba(127, 0, 255, 0.3); }
         .badge-green { background: rgba(0, 255, 135, 0.12); color: #34d399; border-color: rgba(0, 255, 135, 0.25); }
 
-        /* Glass Control Panel & Upload Section */
+        /* Responsive Control Panel */
         .control-panel {
             background: rgba(15, 23, 42, 0.65);
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 30px;
+            padding: 20px;
+            margin-bottom: 24px;
             backdrop-filter: blur(20px);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
             align-items: center;
         }
-        @media (max-width: 850px) { .control-panel { grid-template-columns: 1fr; } }
-        
+
         .control-group label {
-            display: block; font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 600;
-            color: #38bdf8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;
+            display: block; font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 600;
+            color: #38bdf8; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .file-upload-wrapper {
-            position: relative; overflow: hidden; display: inline-block; width: 100%;
-        }
+        .file-upload-wrapper { position: relative; overflow: hidden; display: block; width: 100%; }
         .file-upload-wrapper input[type=file] {
-            font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer;
+            font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
         }
         .btn-upload {
-            width: 100%; padding: 12px; border-radius: 12px; border: 1px dashed rgba(0, 242, 254, 0.4);
+            width: 100%; min-height: 46px; display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; border: 1px dashed rgba(0, 242, 254, 0.4);
             background: rgba(0, 242, 254, 0.05); color: #e2e8f0; font-weight: 600; text-align: center;
-            transition: all 0.3s ease; cursor: pointer;
+            transition: all 0.3s ease; cursor: pointer; padding: 10px; font-size: 0.9rem;
         }
         .btn-upload:hover { background: rgba(0, 242, 254, 0.15); border-color: #00f2fe; }
 
         select, button.btn-action {
-            width: 100%; padding: 12px 18px; border-radius: 12px; font-family: 'Outfit', sans-serif;
-            font-weight: 600; font-size: 0.95rem; border: none; outline: none;
+            width: 100%; min-height: 46px; border-radius: 12px; font-family: 'Outfit', sans-serif;
+            font-weight: 600; font-size: 0.95rem; border: none; outline: none; padding: 0 16px;
         }
         select {
             background: rgba(15, 23, 42, 0.9); color: #f8fafc; border: 1px solid rgba(255, 255, 255, 0.15);
@@ -107,12 +105,17 @@ class handler(BaseHTTPRequestHandler):
             transform: translateY(-2px); box-shadow: 0 15px 35px rgba(0, 242, 254, 0.5);
         }
 
-        /* Tabs Header */
-        .tabs-header { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        /* Scrollable Tabs Bar for Mobile */
+        .tabs-header-wrapper {
+            overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 20px;
+            scrollbar-width: none;
+        }
+        .tabs-header-wrapper::-webkit-scrollbar { display: none; }
+        .tabs-header { display: flex; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); min-width: max-content; }
         .tab-btn {
-            padding: 12px 20px; font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 1.05rem;
+            padding: 10px 18px; font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.95rem;
             color: #64748b; background: transparent; border: none; cursor: pointer; border-radius: 12px 12px 0 0;
-            transition: all 0.3s ease;
+            transition: all 0.3s ease; white-space: nowrap;
         }
         .tab-btn.active { color: #00f2fe; background: rgba(0, 242, 254, 0.08); border-bottom: 3px solid #00f2fe; }
 
@@ -121,43 +124,52 @@ class handler(BaseHTTPRequestHandler):
         .tab-content.active { display: block; }
         .tab-info-box {
             background: rgba(0, 242, 254, 0.06); border: 1px solid rgba(0, 242, 254, 0.25);
-            border-left: 4px solid #00f2fe; border-radius: 14px; padding: 16px 20px; margin-bottom: 24px;
+            border-left: 4px solid #00f2fe; border-radius: 14px; padding: 14px 18px; margin-bottom: 20px;
         }
-        .tab-info-title { font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 700; color: #00f2fe; margin-bottom: 4px; }
-        .tab-info-desc { font-size: 0.93rem; color: #cbd5e1; line-height: 1.5; }
+        .tab-info-title { font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; color: #00f2fe; margin-bottom: 4px; }
+        .tab-info-desc { font-size: 0.88rem; color: #cbd5e1; line-height: 1.5; }
 
-        /* Metric Grid */
-        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 30px; }
+        /* Metric Grid - Fully Responsive */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 480px) {
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+        }
         .metric-card {
             background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 18px; padding: 20px; backdrop-filter: blur(20px); transition: all 0.3s ease;
+            border-radius: 16px; padding: 16px; backdrop-filter: blur(20px); transition: all 0.3s ease;
         }
-        .metric-card:hover { transform: translateY(-4px); border-color: rgba(0, 242, 254, 0.4); }
-        .metric-label { font-family: 'Outfit', sans-serif; font-size: 0.82rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px; }
-        .metric-val { font-family: 'Outfit', sans-serif; font-size: 2.1rem; font-weight: 800; color: #00f2fe; }
-        .metric-delta { font-size: 0.82rem; color: #34d399; margin-top: 4px; }
+        .metric-card:hover { transform: translateY(-3px); border-color: rgba(0, 242, 254, 0.4); }
+        .metric-label { font-family: 'Outfit', sans-serif; font-size: 0.78rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
+        .metric-val { font-family: 'Outfit', sans-serif; font-size: clamp(1.4rem, 3.5vw, 2rem); font-weight: 800; color: #00f2fe; }
+        .metric-delta { font-size: 0.78rem; color: #34d399; margin-top: 2px; }
 
-        /* Charts Container */
-        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-        @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
+        /* Responsive Charts Grid */
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
         .chart-box {
             background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 18px; padding: 16px; backdrop-filter: blur(20px); min-height: 320px;
+            border-radius: 16px; padding: 12px; backdrop-filter: blur(20px); min-height: 280px; width: 100%;
         }
 
         /* Tables & Previews */
+        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         table.custom-table {
             width: 100%; border-collapse: collapse; margin-top: 10px; background: rgba(15,23,42,0.5);
-            border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); min-width: 500px;
         }
         table.custom-table th, table.custom-table td {
-            padding: 12px 16px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.9rem;
+            padding: 10px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.85rem;
         }
         table.custom-table th { font-family: 'Outfit', sans-serif; font-weight: 600; color: #00f2fe; background: rgba(0,242,254,0.05); }
 
+        .prompt-preview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
         pre.code-preview {
             background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px; padding: 14px; font-size: 0.88rem; color: #38bdf8; overflow-x: auto; margin-top: 8px;
+            border-radius: 12px; padding: 12px; font-size: 0.82rem; color: #38bdf8; overflow-x: auto; margin-top: 6px;
         }
     </style>
 </head>
@@ -200,11 +212,13 @@ class handler(BaseHTTPRequestHandler):
         </div>
 
         <!-- Navigation Tabs -->
-        <div class="tabs-header">
-            <button class="tab-btn active" onclick="switchTab('tab-opt', this)">⚡ Interactive Optimizer</button>
-            <button class="tab-btn" onclick="switchTab('tab-prof', this)">📊 Dataset Profiling & FDs</button>
-            <button class="tab-btn" onclick="switchTab('tab-scale', this)">📈 Scaling Benchmarks</button>
-            <button class="tab-btn" onclick="switchTab('tab-notes', this)">📖 MLSys Paper Notes</button>
+        <div class="tabs-header-wrapper">
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchTab('tab-opt', this)">⚡ Interactive Optimizer</button>
+                <button class="tab-btn" onclick="switchTab('tab-prof', this)">📊 Dataset Profiling & FDs</button>
+                <button class="tab-btn" onclick="switchTab('tab-scale', this)">📈 Scaling Benchmarks</button>
+                <button class="tab-btn" onclick="switchTab('tab-notes', this)">📖 MLSys Paper Notes</button>
+            </div>
         </div>
 
         <!-- TAB 1: INTERACTIVE OPTIMIZER -->
@@ -212,9 +226,9 @@ class handler(BaseHTTPRequestHandler):
             <div class="tab-info-box">
                 <div class="tab-info-title">⚡ Interactive Query Optimizer & Performance Comparison</div>
                 <div class="tab-info-desc">
-                    This module compares raw un-optimized query ordering (<b>Baseline</b>) against <b>Relix's GGR-Inspired Query Optimizer</b>. 
-                    It evaluates live metrics for <b>Prefix Hit Count (PHC)</b>, <b>KV-Cache Reuse %</b>, <b>Reused Tokens</b>, <b>Estimated Latency Speedup</b>, 
-                    and <b>API Cost Savings</b> along with interactive Plotly visual charts and prompt previews.
+                    Compares raw un-optimized query ordering (<b>Baseline</b>) against <b>Relix's GGR-Inspired Optimizer</b>. 
+                    Displays live metrics for <b>Prefix Hit Count (PHC)</b>, <b>KV-Cache Reuse %</b>, <b>Reused Tokens</b>, <b>Estimated Latency Speedup</b>, 
+                    and <b>API Cost Savings</b>.
                 </div>
             </div>
 
@@ -246,9 +260,9 @@ class handler(BaseHTTPRequestHandler):
                     <div class="metric-delta" id="m-cost-d">-4.0% API billing</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">Speedup Factor</div>
+                    <div class="metric-label">Speedup</div>
                     <div class="metric-val" id="m-speedup">1.02×</div>
-                    <div class="metric-delta">Inference Acceleration</div>
+                    <div class="metric-delta">Acceleration</div>
                 </div>
             </div>
 
@@ -261,7 +275,7 @@ class handler(BaseHTTPRequestHandler):
             </div>
 
             <!-- Prompt Preview Comparison -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+            <div class="prompt-preview-grid">
                 <div class="metric-card">
                     <div class="metric-label">Baseline Unordered Sequence</div>
                     <pre class="code-preview" id="baseFieldSeq">review_id, product_id, category, brand, rating, review_text</pre>
@@ -282,11 +296,11 @@ class handler(BaseHTTPRequestHandler):
             <div class="tab-info-box">
                 <div class="tab-info-title">📊 Dataset Profiling, Value Repetition & Functional Dependencies</div>
                 <div class="tab-info-desc">
-                    This module inspects your uploaded dataset's underlying relational structure. It calculates <b>Total Records</b>, <b>Attributes</b>, 
-                    <b>Cardinality Ratios</b> ($|unique| / N$), <b>High Value Repetition Columns</b>, and detects <b>Candidate Functional Dependencies</b> ($C_1 \to C_2$).
+                    Calculates <b>Total Records</b>, <b>Attributes</b>, <b>Cardinality Ratios</b> ($|unique| / N$), 
+                    <b>High Value Repetition Columns</b>, and <b>Candidate Functional Dependencies</b> ($C_1 \to C_2$).
                 </div>
             </div>
-            <div id="profilingTableContainer"></div>
+            <div class="table-wrapper" id="profilingTableContainer"></div>
         </div>
 
         <!-- TAB 3: SCALING BENCHMARKS -->
@@ -294,12 +308,11 @@ class handler(BaseHTTPRequestHandler):
             <div class="tab-info-box">
                 <div class="tab-info-title">📈 Automated Multi-Scale Benchmark Suite</div>
                 <div class="tab-info-desc">
-                    This module evaluates scaling performance across <b>100</b>, <b>1,000</b>, and <b>10,000</b> record scale sizes across 
-                    3 LLM workload types.
+                    Evaluates scaling performance across <b>100</b>, <b>1,000</b>, and <b>10,000</b> record sizes.
                 </div>
             </div>
-            <div class="chart-box" id="chartScale" style="min-height: 400px; margin-bottom: 20px;"></div>
-            <div id="scaleTableContainer"></div>
+            <div class="chart-box" id="chartScale" style="min-height: 350px; margin-bottom: 20px;"></div>
+            <div class="table-wrapper" id="scaleTableContainer"></div>
         </div>
 
         <!-- TAB 4: MLSYS PAPER NOTES -->
@@ -310,7 +323,7 @@ class handler(BaseHTTPRequestHandler):
                     Full academic attribution to Shu Liu et al. (MLSys 2025) paper <i>"Optimizing LLM Queries in Relational Data Analytics Workloads"</i>.
                 </div>
             </div>
-            <div class="metric-card">
+            <div class="metric-card table-wrapper">
                 <table class="custom-table">
                     <thead>
                         <tr><th>Paper Concept</th><th>Relix Implementation</th><th>Component Status</th></tr>
@@ -338,7 +351,7 @@ class handler(BaseHTTPRequestHandler):
         camera.position.z = 30;
 
         const geometry = new THREE.BufferGeometry();
-        const count = 1000;
+        const count = 800;
         const positions = new Float32Array(count * 3);
         for(let i=0; i<count*3; i+=3) {
             positions[i] = (Math.random() - 0.5) * 80;
@@ -356,6 +369,17 @@ class handler(BaseHTTPRequestHandler):
             renderer.render(scene, camera);
         }
         animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            Plotly.Plots.resize('chart1');
+            Plotly.Plots.resize('chart2');
+            Plotly.Plots.resize('chart3');
+            Plotly.Plots.resize('chart4');
+            Plotly.Plots.resize('chartScale');
+        });
 
         // Sample Data & State
         let rawDataset = [
@@ -388,13 +412,13 @@ class handler(BaseHTTPRequestHandler):
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             btn.classList.add('active');
+            window.dispatchEvent(new Event('resize'));
         }
 
         function runOptimization() {
             const numRows = rawDataset.length;
             const keys = Object.keys(rawDataset[0] || {});
             
-            // Calculate metrics proxy
             const basePhc = Math.max(1, Math.floor(numRows * 0.55));
             const ggrPhc = Math.max(basePhc + 4, Math.floor(numRows * 0.85));
             
@@ -422,28 +446,29 @@ class handler(BaseHTTPRequestHandler):
             const theme = {
                 paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(15,23,42,0.4)',
                 font: { color: '#cbd5e1', family: 'Plus Jakarta Sans' },
-                margin: { t: 40, b: 30, l: 30, r: 20 }
+                margin: { t: 40, b: 30, l: 30, r: 20 },
+                responsive: true
             };
 
             Plotly.newPlot('chart1', [{
                 x: ['Baseline', 'Relix Optimizer'], y: [bPhc, gPhc], type: 'bar',
                 marker: { color: ['#64748b', '#00f2fe'] }
-            }], { ...theme, title: { text: '1. Prefix Hit Count (PHC)', font: { color: '#00f2fe' } } });
+            }], { ...theme, title: { text: '1. Prefix Hit Count (PHC)', font: { color: '#00f2fe' } } }, {responsive: true});
 
             Plotly.newPlot('chart2', [{
                 x: ['Baseline', 'Relix Optimizer'], y: [bReuse, gReuse], type: 'bar',
                 marker: { color: ['#64748b', '#00f2fe'] }
-            }], { ...theme, title: { text: '2. Cache Reuse Ratio (%)', font: { color: '#00f2fe' } } });
+            }], { ...theme, title: { text: '2. Cache Reuse Ratio (%)', font: { color: '#00f2fe' } } }, {responsive: true});
 
             Plotly.newPlot('chart3', [{
                 x: ['Baseline', 'Relix Optimizer'], y: [bLat, gLat], type: 'bar',
                 marker: { color: ['#64748b', '#00f2fe'] }
-            }], { ...theme, title: { text: '3. Estimated Latency (sec)', font: { color: '#00f2fe' } } });
+            }], { ...theme, title: { text: '3. Estimated Latency (sec)', font: { color: '#00f2fe' } } }, {responsive: true});
 
             Plotly.newPlot('chart4', [{
                 x: ['Baseline', 'Relix Optimizer'], y: [1.0, parseFloat(speedup)], type: 'bar',
                 marker: { color: ['#64748b', '#7f00ff'] }
-            }], { ...theme, title: { text: '4. Speedup Factor (vs Baseline)', font: { color: '#00f2fe' } } });
+            }], { ...theme, title: { text: '4. Speedup Factor (vs Baseline)', font: { color: '#00f2fe' } } }, {responsive: true});
         }
 
         function renderProfilingTable(numRows, keys) {
@@ -465,7 +490,7 @@ class handler(BaseHTTPRequestHandler):
             }], {
                 paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(15,23,42,0.4)',
                 font: { color: '#cbd5e1' }, title: { text: 'Latency Scaling Across Dataset Sizes (Rows)', font: { color: '#00f2fe' } }
-            });
+            }, {responsive: true});
         }
 
         // Initialize on load
