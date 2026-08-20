@@ -9,6 +9,4 @@ venv/
 ENV/
 .pytest_cache/
 
-# Data & Experiments cache
-.streamlit/
-experiments/results/*.png
+
