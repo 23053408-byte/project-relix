@@ -176,3 +176,7 @@ class handler(BaseHTTPRequestHandler):
         """
         self.wfile.write(html_content.encode('utf-8'))
         return
+
+app = handler
+application = handler
+
