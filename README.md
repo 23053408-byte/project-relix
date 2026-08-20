@@ -1,179 +1,192 @@
-# Relix — Cost- and Latency-Aware Optimization of LLM Queries over Relational Data
+# ⚡ Relix — Cost- and Latency-Aware Optimization of LLM Queries over Relational Data
 
-> **Groundbreaking Data-Systems Research Prototype**  
-> **Based on MLSys 2025 Research:** Shu Liu et al., *Optimizing LLM Queries in Relational Data Analytics Workloads*, Proceedings of Machine Learning and Systems (MLSys 2025).  
-> **Paper Link:** https://proceedings.mlsys.org/paper_files/paper/2025/file/b5dc49f44db2fadc5c4d717c57f4a424-Paper-Conference.pdf  
-> **GitHub Repository:** https://github.com/23053408-byte/project-relix
+> **রিয়েল-টাইম রিলেশনাল ডেটা ও LLM কোয়েরি অপটিমাইজেশন সিস্টেম**  
+> **MLSys 2025 গবেষণা পত্রের ওপর ভিত্তি করে তৈরি:** Shu Liu et al., *Optimizing LLM Queries in Relational Data Analytics Workloads*, Proceedings of Machine Learning and Systems (MLSys 2025).  
+> **পেপার লিংক:** https://proceedings.mlsys.org/paper_files/paper/2025/file/b5dc49f44db2fadc5c4d717c57f4a424-Paper-Conference.pdf  
+> **গিটহাব রিপোজিটরি:** https://github.com/23053408-byte/project-relix
 
 ---
 
-## 1. 🎯 What Problem Does Relix Solve?
+## ১. 🎯 Relix কী এবং এটি কী সমস্যা সমাধান করে? (What Problem Relix Solves)
 
-### The Real-World Problem
-Modern database analytics applications increasingly use Large Language Models (LLMs) to classify, extract, score, and summarize millions of database records (e.g. customer reviews, e-commerce product listings, support tickets, financial transactions).
+### 🔴 বাস্তব বিশ্বের সমস্যা (The Real-World Problem)
+আধুনিক ডেটাবেস অ্যানালিটিক্স অ্যাপ্লিকেশনে লাখ লাখ ডেটাবেস রেকর্ড (যেমন: কাস্টমার রিভিউ, প্রোডাক্ট ক্যাটালগ, সাপোর্ট টিকেট, ব্যাংক ট্রানজ্যাকশন) প্রসেস করার জন্য Large Language Model (LLM, যেমন ChatGPT/Llama) ব্যবহার করা হয়।
 
-When databases send records to LLMs naively row-by-row:
-1. Every single prompt repeats identical system instructions, schema headers, brand names, and category attributes.
-2. Standard LLM serving engines re-evaluate these **same repeated starting words** during prefill computation for every single request.
-3. This creates massive computational bottlenecks, **high latency**, and **excessive financial API costs**.
-
-```text
-Naive Database Query Engine
-       ↓
-Generate 10,000 Independent LLM Prompts
-       ↓
-Identical Instructions & Metadata Repeated
-       ↓
-Full Prefill Computation Repeated for Every Record
-       ↓
-High Latency + High API Costs
-```
-
-### The Relix Solution
-**Relix** profiles column value repetition and candidate functional dependencies ($C_1 \to C_2$) across relational tables. It then dynamically **reorders database rows and prompt fields** so that records sharing identical attribute values are processed adjacently.
-
-Because modern LLM inference engines utilize key-value prefix caching (**KV-Cache**), Relix creates **longer contiguous shared prompt prefixes**. The LLM engine reuses pre-computed attention states from memory, skipping redundant prefill calculations!
+সাধারণ নিয়মে (Naive Ordering) যখন ডেটাবেস থেকে একটি একটি করে রো LLM-এ পাঠানো হয়:
+১. প্রতিটি প্রম্পটে একই সিস্টেম নির্দেশাবলী, স্কিমা হেডার, ব্র্যান্ড নেম এবং ক্যাটাগরি বারবার টাইপ করা থাকে।  
+২. LLM মডেল প্রতিটি রিকোয়েস্টের জন্য এই **একই সূচনা শব্দগুলো (Prefix Tokens) বারবার নতুন করে কম্পিউট (Prefill Computation)** করে।  
+৩. এর ফলে প্রসেসিং **অত্যধিক ধীরগতি (High Latency)** হয় এবং **এপিআই খরচ অনেক বেড়ে যায় (Excessive API Cost)**।
 
 ```text
-Relational Database Table
+সাধারণ ডেটাবেস কোয়েরি পদ্ধতি (Naive Query Engine)
        ↓
-Relix Profiler (Cardinality, Repetition & Functional Dependencies)
+১০,০০০ স্বাধীন প্রম্পট তৈরি
        ↓
-Reorder Database Rows + Reorder Prompt Fields (GGR-Inspired Algorithm)
+একই নির্দেশাবলী ও মেটাডেটা বারবার প্রসেস করা
        ↓
-Create Long Contiguous Shared Prompt Prefixes
+প্রতিটি রেকর্ডের জন্য সম্পূর্ণ কম্পিউটেশন পুনরায় হওয়া
        ↓
-Maximize KV-Cache Memory Reuse
-       ↓
-⚡ 1.5× – 2.8× Faster Processing | 💰 25% – 40% Lower API Cost | 🛡️ 100% Identical Output
+ধীরগতি (High Latency) + অত্যধিক খরচ (High API Cost)
 ```
 
 ---
 
-## 2. 🖥️ Interactive Dashboard: Tab-by-Tab Guide
+### 🟢 Relix-এর সমাধান (The Relix Solution)
+**Relix** ডেটাবেস টেবিলের কলামের পুনরাবৃত্তি (Value Repetition) এবং ফাংশনাল ডিপেন্ডেন্সি ($C_1 \to C_2$) বিশ্লেষণ করে। এরপর এটি বুদ্ধিমানভাবে **ডেটাবেসের রো (Row) এবং ফিল্ডের (Field) ক্রমানুসারে পরিবর্তন (Reorder)** করে যাতে একই ধরনের প্রম্পট একসাথে সাজানো হয়।
 
-Relix includes a modern, glassmorphic Streamlit web application (`app.py`). Here is what each tab explains and provides:
+LLM মডেলের KV-Cache মেমোরি সুবিধা ব্যবহার করে Relix **দীর্ঘ শেয়ার্ড প্রম্পট প্রিফিক্স (Long Shared Prompt Prefixes)** তৈরি করে। ফলে LLM মেমোরি থেকে আগের ক্যাশ করা অংশ রিইউজ করে এবং বারবার একই শব্দ প্রসেস করা থেকে বেঁচে যায়!
 
-### ⚡ Tab 1: Interactive Optimizer & Performance Comparison
-- **Purpose**: Runs live comparative benchmarks between un-optimized database ordering (**Baseline**) and **Relix's GGR-Inspired Query Optimizer**.
-- **What It Explains**:
-  - Displays live metric cards comparing Prefix Hits, Cache Reuse %, Reused Tokens, Latency Speedup, and API Cost Savings.
-  - Generates **5 Interactive Glowing Plotly Charts** analyzing latency, cost, and token reuse.
-  - Shows side-by-side prompt previews to illustrate how Relix restructures field sequences without changing task instructions.
-
-### 📊 Tab 2: Dataset Profiling & Functional Dependencies (FDs)
-- **Purpose**: Analyzes the underlying mathematical and relational structure of your dataset.
-- **What It Explains**:
-  - **Cardinality Ratios** ($|unique| / N$): Measures value repetition per column.
-  - **High Value Repetition Columns**: Identifies low-cardinality metadata fields (e.g. `brand`, `category`) that yield high prefix sharing.
-  - **Candidate Functional Dependencies** ($C_1 \to C_2$): Detects deterministic relationships (e.g., `product_id -> brand`) to ensure determinant attributes precede dependent attributes in prompt field order.
-
-### 📈 Tab 3: Multi-Scale Benchmark Suite
-- **Purpose**: Evaluates system performance under large data volume growth.
-- **What It Explains**:
-  - Runs automated scalability benchmarks across **100**, **1,000**, and **10,000** records across 3 LLM workloads (*Sentiment Classification*, *Entity Extraction*, *Attribute Extraction*).
-  - Plots interactive scaling line curves showing how prefill latency scales smoothly as dataset size increases.
-
-### 📖 Tab 4: MLSys Paper Notes & Theoretical Mapping
-- **Purpose**: Provides academic attribution and methodological verification.
-- **What It Explains**:
-  - Summarizes key theoretical concepts from Liu et al. (MLSys 2025).
-  - Contains a formal mapping table matching original paper concepts (OPHR, GGR, PHC, KV-Cache) to Relix's prototype code modules.
+```text
+রিলেশনাল ডেটাবেস টেবিল
+       ↓
+Relix প্রোফাইলার (পুনরাবৃত্তি ও ফাংশনাল ডিপেন্ডেন্সি বিশ্লেষণ)
+       ↓
+রো এবং ফিল্ড পুনর্বিন্যাস (Relix GGR-Inspired Algorithm)
+       ↓
+দীর্ঘ শেয়ার্ড প্রম্পট প্রিফিক্স তৈরি
+       ↓
+KV-Cache মেমোরি ক্যাশিং সর্বোচ্চ ব্যবহার
+       ↓
+⚡ ১.৫× – ২.৮× দ্রুতগতি | 💰 ২৫% – ৪০% কম খরচ | 🛡️ ১০০% নির্ভুল ফলাফল
+```
 
 ---
 
-## 3. 💎 What Measurement Gains Mean (Metric Definitions)
+## ২. 🖥️ ড্যাশবোর্ডের প্রতিটি ট্যাবের বিবরণ (Detailed Tab Guide)
 
-When you run Relix, the dashboard displays 6 key **Measured Optimization Gains**. Here is what each metric means:
+Relix ড্যাশবোর্ডে ৪টি প্রধান ট্যাব রয়েছে:
 
-| Metric Name | Mathematical Definition | What It Means & Why It Matters |
-| :--- | :--- | :--- |
-| **Prefix Hits (PHC)** | $\sum_{i=2}^{N} \mathbb{I}(\text{LCP}(P_{i-1}, P_i) > 0)$ | **Prefix Hit Count**. Number of consecutive LLM request pairs that successfully share prefilled starting tokens. Higher is better. |
-| **Cache Reuse Ratio (%)** | $\frac{\text{Reused Input Tokens}}{\text{Total Input Tokens}} \times 100$ | Percentage of total prompt input tokens served directly from memory cache instead of recomputed. Higher is better (typically 65%–85%). |
-| **Reused Tokens** | $\sum_{i=2}^{N} |\text{LCP}(P_{i-1}, P_i)|$ | Exact count of individual prompt tokens saved from redundant prefill matrix multiplications. |
-| **Est. Latency (sec)** | $T_{\text{overhead}} + \frac{\text{Uncached Tokens}}{\text{Prefill TPS}} + \frac{\text{Output Tokens}}{\text{Decode TPS}}$ | Total estimated processing time in seconds. Lower prefill tokens directly translate to faster query completion times. |
-| **Est. Cost ($ USD)** | $\text{Cost}_{\text{uncached}} + \text{Cost}_{\text{cached}} + \text{Cost}_{\text{output}}$ | Total financial inference cost in USD. Cached input tokens receive a 50% price discount on provider billing. |
-| **Speedup Factor (×)** | $\frac{\text{Baseline Latency}}{\text{Relix Latency}}$ | Relative acceleration multiplier (e.g. `2.2×` means queries finish more than twice as fast). |
+### ⚡ ট্যাব ১: Interactive Optimizer & Performance Comparison (ইন্টারেক্টিভ অপটিমাইজার)
+- **উদ্দেশ্য**: সাধারণ অ-অপটিমাইজড পদ্ধতি (**Baseline**) এবং **Relix GGR-Inspired Optimizer**-এর মধ্যে সরাসরি পারফর্ম্যান্স তুলনা করে।
+- **ট্যাবের বিবরণ**:
+  - লাইভ মেট্রিক কার্ডে Prefix Hits, Cache Reuse %, Reused Tokens, Speedup, এবং API Cost Savings দেখায়।
+  - ৫টি গ্লোয়িং প্লটলি (Plotly) ইন্টারঅ্যাক্টিভ চার্টের মাধ্যমে সময় ও খরচের তুলনা তুলে ধরে।
+  - মূল টেক্সট না বদলে কীভাবে প্রম্পটের কলাম সাজানো হয়েছে তা পাশাপাশি (Side-by-Side) প্রিভিউ দেখায়।
+
+### 📊 ট্যাব ২: Dataset Profiling & Functional Dependencies (ডেটাবেস প্রোফাইলিং)
+- **উদ্দেশ্য**: আপনার আপলোড করা ডেটাবেসের গাণিতিক ও কাঠামোগত বৈশিষ্ট্য বিশ্লেষণ করে।
+- **ট্যাবের বিবরণ**:
+  - **Cardinality Ratios** ($|unique| / N$): কোন কলামে কত শতাংশ ইউনিক মান আছে তা মেপে বের করে।
+  - **High Value Repetition Columns**: কোন কলামের মানগুলো সবচেয়ে বেশি বারবার এসেছে তা সনাক্ত করে।
+  - **Candidate Functional Dependencies** ($C_1 \to C_2$): কোন কলাম অন্য কলামের ওপর নির্ভরশীল (যেমন `product_id -> brand`) তা খুঁজে বের করে যাতে প্রম্পট তৈরি করার সময় সঠিক ক্রমানুসার বজায় থাকে।
+
+### 📈 ট্যাব ৩: Multi-Scale Benchmark Suite (মাল্টি-স্কেল বেঞ্চমার্ক)
+- **উদ্দেশ্য**: ডেটার পরিমাণ বাড়লে সিস্টেমের স্থায়িত্ব ও দক্ষতা পরীক্ষা করে।
+- **ট্যাবের বিবরণ**:
+  - **১০০**, **১,০০০**, এবং **১০,০০০** রেকর্ডের স্কেলে স্বয়ংক্রিয় বেঞ্চমার্ক চালায়।
+  - ৩টি ভিন্ন কাজের (Sentiment Analysis, Entity Extraction, Attribute Extraction) জন্য প্রসেসিং টাইমের লাইন গ্রাফ দেখায়।
+
+### 📖 ট্যাব ৪: MLSys Paper Notes & Theoretical Mapping (গবেষণা পত্রের ম্যাপিং)
+- **উদ্দেশ্য**: মূল গবেষণা পত্রের সাথে কোডের মিল ও ম্যাপিং প্রদর্শন করে।
+- **ট্যাবের বিবরণ**:
+  - Shu Liu et al. (MLSys 2025) পেপারের মূল সূত্র ও অ্যালগরিদম ব্যাখ্যা করে।
+  - পেপারের OPHR, GGR, PHC ধারণার সাথে Relix কোডের ম্যাপিং টেবিল প্রদর্শন করে।
 
 ---
 
-## 4. 📁 Project File Structure
+## ৩. 💎 প্রতিটি মেট্রিক্সের বিস্তারিত সংজ্ঞা ও অর্থ (Metric Definitions & Explanations)
+
+Relix ড্যাশবোর্ডে যে **মেট্রিক্স পরিমাপসমূহ (Measured Optimization Gains)** দেখানো হয়, সেগুলোর বিস্তারিত সংজ্ঞা নিচে দেওয়া হলো:
+
+### ১. Prefix Hit Count (PHC) - প্রিফিক্স হিট কাউন্ট
+- **সংজ্ঞা**: পরপর দুটি LLM কোয়েরি প্রম্পটের মধ্যে যে কয়টি ক্ষেত্রে সাধারণ প্রম্পট প্রিফিক্স (Common Prompt Tokens) মেলানো সম্ভব হয়েছে তার মোট সংখ্যা।
+- **অর্থ & গুরুত্ব**: PHC যত বেশি হবে, মডেলকে তত কম নতুন শব্দ প্রসেস করতে হবে।
+
+### ২. KV-Cache Reuse Ratio (%) - কেভি-ক্যাশ রিইউজ রেশিও
+- **সংজ্ঞা**: $$\text{Cache Reuse Ratio (\%)} = \left( \frac{\text{Reused Input Tokens}}{\text{Total Input Tokens}} \right) \times 100$$
+- **অর্থ & গুরুত্ব**: মোট ইনপুট প্রম্পট টোকেনের কত শতাংশ মেমোরি ক্যাশ থেকে সরাসরি ব্যবহার করা হয়েছে। Relix ব্যবহারে এটি সাধারণত **৬৫% থেকে ৮৫%** পর্যন্ত পৌঁছে যায়।
+
+### ৩. Reused Prefix Tokens - পুনরায় ব্যবহৃত প্রিফিক্স টোকেন
+- **সংজ্ঞা**: পুরো ব্যাচ প্রসেসিংয়ের সময় মোট যে কয়টি একক টোকেন বা শব্দ পুনঃকম্পিউট হওয়া থেকে রক্ষা পেয়েছে তার সঠিক সংখ্যা।
+- **অর্থ & গুরুত্ব**: এটি সরাসরি কম্পিউটেশনাল কাজ কমানোর পরিমাণ নির্দেশ করে।
+
+### ৪. Estimated Latency (sec) - আনুমানিক প্রসেসিং সময় (সেকেন্ড)
+- **সংজ্ঞা**: $$\text{Latency} = T_{\text{overhead}} + \frac{\text{Uncached Prefill Tokens}}{\text{Prefill TPS}} + \frac{\text{Output Tokens}}{\text{Decode TPS}}$$
+- **অর্থ & গুরুত্ব**: কোয়েরি সম্পন্ন হতে মোট কত সেকেন্ড সময় লাগবে। প্রিফিক্স ক্যাশ হওয়ার ফলে প্রসেসিং সময় ব্যাপকভাবে কমে যায়।
+
+### ৫. Estimated API Cost ($ USD) - আনুমানিক এপিআই খরচ (ইউএস ডলার)
+- **সংজ্ঞা**: $$\text{Total Cost} = \text{Cost}_{\text{uncached}} + \text{Cost}_{\text{cached (50\% Discount)}} + \text{Cost}_{\text{output}}$$
+- **অর্থ & গুরুত্ব**: এপিআই ব্যবহারে মোট কত ডলার খরচ হবে। ক্যাশ হওয়া ইনপুট টোকেনে সাধারণত ৫০% এপিআই বিলিং ডিসকাউন্ট পাওয়া যায়।
+
+### ৬. Speedup Factor (×) - স্পিডআপ ফ্যাক্টর (গতির গুণফল)
+- **সংজ্ঞা**: $$\text{Speedup} = \frac{\text{Baseline Latency}}{\text{Relix Latency}}$$
+- **অর্থ & গুরুত্ব**: সাধারণ পদ্ধতির চেয়ে Relix কত গুণ দ্রুত কাজ সম্পাদন করেছে (যেমন: `2.4×` অর্থ দ্বিগুণেরও বেশি দ্রুত)।
+
+### ৭. Candidate Functional Dependencies (FDs) - ফাংশনাল ডিপেন্ডেন্সি
+- **সংজ্ঞা**: যখন ডেটাবেসের একটি কলামের মান ($C_1$) অন্য একটি কলামের মানকে ($C_2$) সুনির্দিষ্টভাবে নির্ধারণ করে ($C_1 \to C_2$)।
+- **অর্থ & গুরুত্ব**: যেমন `product_id -> brand` (একটি নির্দিষ্ট প্রোডাক্ট আইডির ব্র্যান্ড সবসময় একটাই হয়)। Relix এই তথ্য ব্যবহার করে নির্ভরক কলামকে প্রম্পটের শুরুতে সাজায়।
+
+---
+
+## ৪. 📁 প্রজেক্ট ফাইল স্ট্রাকচার (Project Structure)
 
 ```text
 relix/
-├── README.md                      # Complete project documentation & guide
-├── requirements.txt               # Dependencies: pandas, numpy, streamlit, plotly, pydantic, pytest
-├── .gitignore                     # Git ignore rules
-├── app.py                         # Streamlit Interactive Dashboard UI
-├── research_tasks.md              # Research task execution log
+├── README.md                      # বাংলা ও ইংরেজি বিস্তারিত প্রজেক্ট গাইড
+├── requirements.txt               # প্রয়োজনীয় পাইথন প্যাকেজ তালিকা
+├── .gitignore                     # গিট ইগনোর রুলস
+├── app.py                         # Relix Streamlit ইন্টারঅ্যাক্টিভ ড্যাশবোর্ড
+├── research_tasks.md              # রিসার্চ টাস্ক এক্সিকিউশন লগ
 │
-├── src/                           # Core Engine Modules
+├── src/                           # কোর প্রসেসিং ইঞ্জিন
 │   ├── __init__.py
-│   ├── profiler.py                # Dataset profiler & FD candidate detector
-│   ├── prompt_generator.py        # Configurable field order prompt generator
-│   ├── prefix_metrics.py          # LCP, PHC & cache reuse proxy calculations
-│   ├── baseline.py                # Baseline unordered query evaluator
-│   ├── ophr.py                    # Exact small-data OPHR search oracle (n <= 7)
-│   ├── ggr.py                     # Relix GGR-Inspired greedy row/field optimizer
-│   ├── semantic_validator.py      # Row integrity & cell immutability validator
-│   ├── cost_model.py              # API pricing & latency throughput simulator
-│   └── benchmark.py               # Multi-scale benchmark execution engine
+│   ├── profiler.py                # ডেটাবেস প্রোফাইলার ও এফডি ডিটেক্টর
+│   ├── prompt_generator.py        # ডাইনামিক ফিল্ড প্রম্পট জেনারেটর
+│   ├── prefix_metrics.py          # LCP, PHC ও ক্যাশ রিইউজ গণনা
+│   ├── baseline.py                # বেসলাইন কোয়েরি ইভালুয়েটর
+│   ├── ophr.py                    # ওপিএইচআর স্মল-ডেটা ওরাকল (n <= 7)
+│   ├── ggr.py                     # Relix জিজিআর-ইনস্পায়ার্ড অপটিমাইজার
+│   ├── semantic_validator.py      # সেমান্টিক ভ্যালিডেটর
+│   ├── cost_model.py              # কস্ট ও লেটেন্সি সিমুলেশন মডেল
+│   └── benchmark.py               # মাল্টি-স্কেল বেঞ্চমার্ক ইঞ্জিন
 │
 ├── data/
-│   └── sample_reviews.csv         # Pre-loaded high-repetition sample dataset
+│   └── sample_reviews.csv         # টেস্টের জন্য স্যাম্পল ডেটাবেস
 │
 ├── experiments/
-│   └── results/                   # Generated Benchmark Outputs
-│       ├── dataset_profile.json   # Structural dataset summary
-│       ├── results.csv            # Empirical benchmark output table
-│       ├── results.json           # JSON benchmark export
-│       └── correctness_report.json# Semantic validator verification report
+│   └── results/                   # বেঞ্চমার্ক আউটপুট রেজাল্টস
+│       ├── dataset_profile.json
+│       ├── results.csv
+│       ├── results.json
+│       └── correctness_report.json
 │
-├── tests/                         # Pytest Automated Test Suite
-│   ├── test_prefix.py             # Prefix computation unit tests
-│   ├── test_optimizer.py          # Optimizer permutation unit tests
-│   ├── test_profiler.py           # Profiler & FD detection tests
-│   └── test_semantics.py          # Semantic correctness validator tests
-│
-└── docs/                          # Detailed Technical Specifications
-    ├── paper_notes.md             # MLSys 2025 paper summary
-    ├── algorithm_mapping.md       # Paper concept to implementation mapping
-    ├── architecture.md            # System architecture & dataflow diagram
-    ├── methodology.md             # Mathematical formulation & GGR strategy
-    └── experimental_summary.md    # Empirical benchmark summary
+└── tests/                         # পাইটেস্ট অটোমেটেড টেস্ট সু্যট
+    ├── test_prefix.py
+    ├── test_optimizer.py
+    ├── test_profiler.py
+    └── test_semantics.py
 ```
 
 ---
 
-## 5. 🚀 Quick Start Guide
+## ৫. 🚀 কীভাবে চালাবেন (Quick Start Commands)
 
-### 1. Install Dependencies
+### ১. ডিপেন্ডেন্সি ইনস্টল করুন
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Run Test Suite
+### ২. অটোমেটেড টেস্ট সু্যট রান করুন
 ```bash
 python -m pytest -q
 ```
 
-### 3. Run Benchmark Engine
+### ৩. বেঞ্চমার্ক ইঞ্জিন রান করুন
 ```bash
 python src/benchmark.py
 ```
 
-### 4. Launch Streamlit Web Dashboard
+### ৪. স্ট্রিমলিট ওয়েব ড্যাশবোর্ড রান করুন
 ```bash
 streamlit run app.py
 ```
-Open **[http://localhost:8501](http://localhost:8501)** in your browser!
+ব্রাউজারে **[http://localhost:8501](http://localhost:8501)** ওপেন করুন!
 
 ---
 
-## 6. 🛡️ Semantic Preservation Guarantee
+## ৬. 🛡️ ১০০% সেমান্টিক নিশ্চয়তা (Semantic Preservation Guarantee)
 
-Relix strictly enforces a **Semantic Correctness Guarantee**:
-- **Row Integrity**: Every input row appears exactly once in the optimized sequence (no duplicates or dropped records).
-- **Cell Immutability**: No cell values or record attributes are altered.
-- **Task Identity**: System instructions and analytical tasks remain identical across baseline and optimized queries.
-- **Output Equivalence**: Deterministic analytical outputs remain identical after normalization.
+Relix অপটিমাইজেশন ব্যবহারের পরও ডেটার সঠিকতা ১০০% বজায় থাকে:
+- **রো অখণ্ডতা (Row Integrity)**: কোনো রো বাদ পড়ে না বা ডুপ্লিকেট হয় না।
+- **মান অপরিবর্তিত (Cell Immutability)**: ডেটাবেসের কোনো মান বা লেখা পরিবর্তন হয় না।
+- **ফলাফলের সামঞ্জস্য (Output Identity)**: এআই-এর মূল উত্তর বা শ্রেণীবিন্যাস সম্পূর্ণ একই থাকে।
